@@ -1,5 +1,4 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:training_quiz_app/features/quiz/quiz_controller.dart';
+
 
 void main() {
   group('Quiz State Tests', () {
