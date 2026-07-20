@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  PARTICIPANT
+}
+
+enum AttemptStatus {
+  IN_PROGRESS
+  APPROVED
+  FAILED
+}
+
+enum CertificateStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  passwordHash String
+  role         Role      @default(PARTICIPANT)
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+
+  attempts     Attempt[]
+}
+
+model Evaluation {
+  id           Int       @id @default(autoincrement())
+  title        String
+  passingScore Int
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+
+  questions    Question[]
+  attempts     Attempt[]
+}
+
+model Question {
+  id           Int        @id @default(autoincrement())
+  evaluationId Int
+  text         String
+  order        Int
+  active       Boolean    @default(true)
+
+  evaluation   Evaluation @relation(fields: [evaluationId], references: [id])
+  options      Option[]
+}
+
+model Option {
+  id         Int      @id @default(autoincrement())
+  questionId Int
+  text       String
+  isCorrect  Boolean
+  order      Int
+
+  question   Question @relation(fields: [questionId], references: [id])
+}
+
+model Attempt {
+  id           Int           @id @default(autoincrement())
+  userId       Int
+  evaluationId Int
+  status       AttemptStatus @default(IN_PROGRESS)
+  score        Int?
+  startedAt    DateTime      @default(now())
+  finishedAt   DateTime?
+
+  user         User          @relation(fields: [userId], references: [id])
+  evaluation   Evaluation    @relation(fields: [evaluationId], references: [id])
+  certificate  Certificate?
+}
+
+model Certificate {
+  id         Int               @id @default(autoincrement())
+  attemptId  Int               @unique
+  code       String            @unique
+  issuedAt   DateTime          @default(now())
+  expiresAt  DateTime
+  status     CertificateStatus @default(ACTIVE)
+
+  attempt    Attempt           @relation(fields: [attemptId], references: [id])
+}
