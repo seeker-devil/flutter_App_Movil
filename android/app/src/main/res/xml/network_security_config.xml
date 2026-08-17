@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- 
+      EXCEPCIÓN ÚNICAMENTE PARA DESARROLLO LOCAL:
+      Esta configuración autoriza tráfico HTTP sin cifrar (cleartext) acotado
+      exclusivamente a los hosts de desarrollo local (10.0.2.2 para Android Emulator,
+      localhost / 127.0.0.1 para pruebas locales y subredes LAN privadas).
+      
+      IMPORTANTE: Debe retirarse o reemplazarse por HTTPS con certificados SSL/TLS válidos
+      antes de una distribución o despliegue en producción real.
+    -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">10.0.2.2</domain>
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+    </domain-config>
+</network-security-config>

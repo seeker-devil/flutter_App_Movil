@@ -4,10 +4,16 @@ import { PrismaClient } from '@prisma/client';
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   async onModuleInit() {
-    await this.$connect();
+    try {
+      await this.$connect();
+    } catch (e: any) {
+      console.warn('Prisma DB connection skipped (Docker DB offline):', e?.message || e);
+    }
   }
 
   async onModuleDestroy() {
-    await this.$disconnect();
+    try {
+      await this.$disconnect();
+    } catch (_) {}
   }
 }

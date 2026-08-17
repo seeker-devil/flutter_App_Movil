@@ -9,6 +9,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     this.client = new Redis({
       host: process.env.REDIS_HOST || 'localhost',
       port: parseInt(process.env.REDIS_PORT || '6379', 10),
+      lazyConnect: true,
+      enableOfflineQueue: false,
+    });
+    this.client.on('error', (err) => {
+      // Suppress unhandled error log when Redis offline
     });
   }
 
