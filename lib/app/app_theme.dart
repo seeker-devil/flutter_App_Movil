@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
+import '../design_system/theme/app_theme.dart';
 
-final appTheme = ThemeData(
-  useMaterial3: true,
-  colorSchemeSeed: Colors.blue,
-  visualDensity: VisualDensity.adaptivePlatformDensity,
-);
+/// Tema global expuesto al MaterialApp
+final ThemeData appTheme = AppTheme.lightTheme;

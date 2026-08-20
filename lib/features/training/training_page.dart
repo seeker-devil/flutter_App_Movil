@@ -3,6 +3,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../config/api_config.dart';
+import '../../design_system/components/safe_access_async_state.dart';
+import '../../design_system/components/safe_access_button.dart';
+import '../../design_system/components/safe_access_section_card.dart';
+import '../../design_system/components/safe_access_status_card.dart';
+import '../../design_system/tokens/app_colors.dart';
+import '../../design_system/tokens/app_spacing.dart';
 import '../../services/health_api_service.dart';
 import '../../shared/app_scaffold.dart';
 import '../quiz/quiz_controller.dart';
@@ -62,187 +68,128 @@ class _TrainingPageState extends ConsumerState<TrainingPage> {
 
     return AppScaffold(
       title: 'SafeAccess 90 - Capacitación',
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Por favor, revisa el siguiente material de capacitación '
-              'antes de proceder a la evaluación.',
-              style: TextStyle(fontSize: 16),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            Card(
-              elevation: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  children: [
-                    const Icon(
-                      Icons.menu_book_outlined,
-                      size: 48,
-                      color: Colors.blue,
-                    ),
-                    const SizedBox(height: 12),
-                    const Text(
-                      'Material de capacitación',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'El material se abrirá en una nueva pestaña del navegador.',
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    FilledButton.icon(
-                      onPressed: _openTrainingMaterial,
-                      icon: const Icon(Icons.open_in_new),
-                      label: const Text('Revisar material'),
-                    ),
-                  ],
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpacing.spacingPage),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Por favor, revisa el siguiente material de capacitación '
+                  'antes de proceder a la evaluación.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppColors.colorTextPrimary,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              elevation: 2,
-              color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const Row(
-                      children: [
-                        Icon(Icons.api, color: Colors.indigo),
-                        SizedBox(width: 8),
-                        Text(
-                          'Estado del Backend (API)',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                const SizedBox(height: AppSpacing.spacingSection),
+                
+                // SECCIÓN 1: Material de capacitación
+                SafeAccessSectionCard(
+                  title: 'Material de capacitación',
+                  leadingIcon: Icons.menu_book_outlined,
+                  subtitle: 'El material se abrirá en una nueva pestaña del navegador.',
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.menu_book_outlined,
+                        size: 48,
+                        color: AppColors.colorPrimary,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      SafeAccessButton(
+                        label: 'Revisar material',
+                        icon: Icons.open_in_new,
+                        onPressed: _openTrainingMaterial,
+                        variant: SafeAccessButtonVariant.primary,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.spacingSection),
+
+                // SECCIÓN 2: Estado del Backend (API)
+                SafeAccessSectionCard(
+                  title: 'Estado del Backend (API)',
+                  leadingIcon: Icons.api_outlined,
+                  subtitle: 'URL Base: ${ApiConfig.baseUrl}',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SafeAccessButton(
+                        label: 'Probar conexión con API',
+                        icon: Icons.sync_outlined,
+                        isLoading: _isLoadingApi,
+                        onPressed: _testApiConnection,
+                        variant: SafeAccessButtonVariant.outline,
+                      ),
+                      if (_apiResult != null) ...[
+                        const SizedBox(height: AppSpacing.md),
+                        SafeAccessAsyncState(
+                          isLoading: false,
+                          error: null,
+                          child: SafeAccessStatusCard(
+                            title: _apiResult!.success
+                                ? 'Backend conectado correctamente'
+                                : 'Error de conexión con el backend',
+                            message: '${_apiResult!.message}${_apiResult!.timestamp != null ? '\nTimestamp: ${_apiResult!.timestamp}' : ''}',
+                            status: _apiResult!.success
+                                ? SafeAccessStatus.success
+                                : SafeAccessStatus.error,
                           ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      'URL Base: ${ApiConfig.baseUrl}',
-                      style: TextStyle(fontSize: 12, fontFamily: 'monospace'),
-                    ),
-                    const SizedBox(height: 12),
-                    OutlinedButton.icon(
-                      onPressed: _isLoadingApi ? null : _testApiConnection,
-                      icon: _isLoadingApi
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.sync_outlined),
-                      label: const Text('Probar conexión con API'),
-                    ),
-                    if (_apiResult != null) ...[
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: _apiResult!.success
-                              ? Colors.green.shade50
-                              : Colors.red.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: _apiResult!.success
-                                ? Colors.green.shade400
-                                : Colors.red.shade400,
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.spacingSection),
+
+                // SECCIÓN 3: Confirmación e Inicio de Evaluación
+                SafeAccessSectionCard(
+                  title: 'Confirmación de Lectura',
+                  leadingIcon: Icons.assignment_turned_in_outlined,
+                  child: Column(
+                    children: [
+                      CheckboxListTile(
+                        value: hasReviewed,
+                        onChanged: (value) {
+                          ref
+                              .read(quizProvider.notifier)
+                              .setMaterialReviewed(value ?? false);
+                        },
+                        title: const Text(
+                          'Confirmo que revisé el material',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.colorTextPrimary,
                           ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  _apiResult!.success
-                                      ? Icons.check_circle_outline
-                                      : Icons.error_outline,
-                                  color: _apiResult!.success
-                                      ? Colors.green.shade700
-                                      : Colors.red.shade700,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    _apiResult!.success
-                                        ? 'Backend conectado correctamente'
-                                        : 'No fue posible conectar con el backend',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: _apiResult!.success
-                                          ? Colors.green.shade900
-                                          : Colors.red.shade900,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              _apiResult!.message,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: _apiResult!.success
-                                    ? Colors.green.shade900
-                                    : Colors.red.shade900,
-                              ),
-                            ),
-                            if (_apiResult!.timestamp != null) ...[
-                              const SizedBox(height: 4),
-                              Text(
-                                'Timestamp: ${_apiResult!.timestamp}',
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ],
-                        ),
+                        controlAffinity: ListTileControlAffinity.leading,
+                        contentPadding: EdgeInsets.zero,
+                        activeColor: AppColors.colorPrimary,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      SafeAccessButton(
+                        label: 'Iniciar prueba',
+                        icon: Icons.arrow_forward_rounded,
+                        onPressed: hasReviewed
+                            ? () {
+                                context.go('/quiz');
+                              }
+                            : null,
+                        variant: SafeAccessButtonVariant.primary,
+                        isFullWidth: true,
                       ),
                     ],
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-            const SizedBox(height: 12),
-            CheckboxListTile(
-              value: hasReviewed,
-              onChanged: (value) {
-                ref
-                    .read(quizProvider.notifier)
-                    .setMaterialReviewed(value ?? false);
-              },
-              title: const Text(
-                'Confirmo que revisé el material',
-              ),
-              controlAffinity: ListTileControlAffinity.leading,
-              contentPadding: EdgeInsets.zero,
-            ),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: hasReviewed
-                  ? () {
-                      context.go('/quiz');
-                    }
-                  : null,
-              child: const Text('Iniciar prueba'),
-            ),
-          ],
+          ),
         ),
       ),
     );

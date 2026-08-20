@@ -4,6 +4,41 @@ Aplicación móvil integradora **SafeAccess 90** desarrollada en Flutter para ca
 
 ---
 
+## Sistema de diseño y catálogo de componentes
+
+### Ubicación del Sistema de Tokens
+- **Tokens de Color**: [`lib/design_system/tokens/app_colors.dart`](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/design_system/tokens/app_colors.dart)
+- **Tokens de Espaciado**: [`lib/design_system/tokens/app_spacing.dart`](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/design_system/tokens/app_spacing.dart)
+- **Tokens de Radios**: [`lib/design_system/tokens/app_radius.dart`](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/design_system/tokens/app_radius.dart)
+- **Tokens de Tipografía**: [`lib/design_system/tokens/app_typography.dart`](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/design_system/tokens/app_typography.dart)
+
+### Ubicación del Tema Accesible
+- **Tema Centralizado**: [`lib/design_system/theme/app_theme.dart`](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/design_system/theme/app_theme.dart)
+
+### Catálogo de Componentes Reutilizables
+1. **`SafeAccessButton`** (`lib/design_system/components/safe_access_button.dart`): Botón accesible con área táctil mínima de 48x48 px, variantes (`primary`, `secondary`, `outline`), estados loading/disabled y `Semantics`.
+2. **`SafeAccessStatusCard`** (`lib/design_system/components/safe_access_status_card.dart`): Tarjeta para retroalimentación semántica (`info`, `success`, `warning`, `error`) cumpliendo WCAG 1.4.1.
+3. **`SafeAccessAsyncState`** (`lib/design_system/components/safe_access_async_state.dart`): Gestor de estados de carga, vacío, error y contenido.
+4. **`SafeAccessSectionCard`** (`lib/design_system/components/safe_access_section_card.dart`): Tarjeta modular de secciones estructuradas.
+
+### Pantalla Real Demostrada
+- **`TrainingPage`** (`lib/features/training/training_page.dart`): Refactorizada para ensamblar los componentes del catálogo manteniendo la lógica de negocio y backend completamente desacopladas.
+
+### Criterios de Accesibilidad (WCAG 2.1)
+- Relaciones de contraste calculadas superiores a **6.5:1** (Cumplimiento AA / AAA).
+- Área táctil de controles interactivos de **48x48 logical pixels**.
+- Anuncios semánticos con `Semantics`.
+- No dependencia exclusiva del color (uso combinado de íconos, bordes y textos).
+
+### Documentación Técnica Adicional
+- [`docs/SCREEN_ENDPOINT_INVENTORY.md`](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/docs/SCREEN_ENDPOINT_INVENTORY.md)
+- [`docs/ACCESSIBILITY_AUDIT.md`](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/docs/ACCESSIBILITY_AUDIT.md)
+- [`docs/COMPONENT_CATALOG.md`](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/docs/COMPONENT_CATALOG.md)
+- [`docs/REPORT_SOURCE_GUIDE.md`](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/docs/REPORT_SOURCE_GUIDE.md)
+- [`docs/AI_USAGE_LOG.md`](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/docs/AI_USAGE_LOG.md)
+
+---
+
 ## Configuración del entorno móvil
 
 ### Framework
@@ -124,7 +159,7 @@ En `android/app/src/main/res/xml/network_security_config.xml` se configuró una 
 
 ## Pruebas automatizadas
 
-Para ejecutar las pruebas unitarias y de estado:
+Para ejecutar las pruebas unitarias y del catálogo de componentes:
 ```bash
 flutter test
 ```
