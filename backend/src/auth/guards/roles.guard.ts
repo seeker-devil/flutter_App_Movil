@@ -1,7 +1,12 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { ROLES_KEY } from '../decorators/roles.decorator';
-import { Role } from '@prisma/client';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { ROLES_KEY } from "../decorators/roles.decorator";
+import { Role } from "@prisma/client";
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -25,9 +30,11 @@ export class RolesGuard implements CanActivate {
 
     const hasRole = requiredRoles.includes(user.role);
     if (!hasRole) {
-      throw new ForbiddenException('No tienes permiso para realizar esta acción');
+      throw new ForbiddenException(
+        "No tienes permiso para realizar esta acción",
+      );
     }
-    
+
     return true;
   }
 }

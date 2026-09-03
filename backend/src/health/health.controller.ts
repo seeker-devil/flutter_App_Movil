@@ -1,12 +1,12 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get } from "@nestjs/common";
 
-@Controller('health')
+@Controller("health")
 export class HealthController {
   @Get()
   checkHealth() {
     return {
       success: true,
-      message: 'SafeAccess 90 backend is running',
+      message: "SafeAccess 90 backend is running",
       timestamp: new Date().toISOString(),
     };
   }
