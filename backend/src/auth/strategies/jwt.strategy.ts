@@ -30,12 +30,16 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       if (redisClient) {
         const cachedUser = await redisClient.get(cacheKey);
         if (cachedUser) {
-          this.logger.log(`[AUTH] Usuario ${userId} validado desde CACHE (Redis)`);
+          this.logger.log(
+            `[AUTH] Usuario ${userId} validado desde CACHE (Redis)`,
+          );
           return JSON.parse(cachedUser);
         }
       }
     } catch (err) {
-      this.logger.warn(`[AUTH] Error al consultar Redis cache (continuando con PostgreSQL): ${err}`);
+      this.logger.warn(
+        `[AUTH] Error al consultar Redis cache (continuando con PostgreSQL): ${err}`,
+      );
     }
 
     // 2. Si no existe en Redis o la caché expiró/falló, consultar PostgreSQL
@@ -52,7 +56,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException("Usuario inactivo");
     }
 
-    this.logger.log(`[AUTH] Usuario ${userId} validado desde DATABASE (PostgreSQL)`);
+    this.logger.log(
+      `[AUTH] Usuario ${userId} validado desde DATABASE (PostgreSQL)`,
+    );
 
     const authUser: AuthenticatedUser = {
       id: user.id,

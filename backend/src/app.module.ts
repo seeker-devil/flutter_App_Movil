@@ -4,6 +4,7 @@ import { PrismaModule } from "./prisma/prisma.module";
 import { AuthModule } from "./auth/auth.module";
 import { RedisModule } from "./redis/redis.module";
 import { AttemptsModule } from "./attempts/attempts.module";
+import { EvaluationsModule } from "./evaluations/evaluations.module";
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { AttemptsModule } from "./attempts/attempts.module";
     AuthModule,
     RedisModule,
     AttemptsModule,
+    EvaluationsModule,
   ],
   controllers: [],
   providers: [],
