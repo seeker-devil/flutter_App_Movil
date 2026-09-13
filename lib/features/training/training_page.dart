@@ -84,7 +84,8 @@ class _TrainingPageState extends ConsumerState<TrainingPage> {
     );
 
     // 2. Enqueue into PendingOperationsTable
-    final payloadJson = '{"evaluationId":1,"score":95,"status":"APPROVED","startedAt":"${now.toIso8601String()}","finishedAt":"${now.toIso8601String()}"}';
+    final payloadJson =
+        '{"evaluationId":1,"score":95,"status":"APPROVED","startedAt":"${now.toIso8601String()}","finishedAt":"${now.toIso8601String()}"}';
     await db.enqueuePendingOperation(
       PendingOperationsTableCompanion.insert(
         clientId: clientId,
@@ -98,55 +99,39 @@ class _TrainingPageState extends ConsumerState<TrainingPage> {
 
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Intento offline guardado en SQLite (clientId: ${clientId.substring(0, 8)}...)'),
-          backgroundColor: Colors.orange.shade800,
+        const SnackBar(
+          content: Text(
+            'Intento registrado en SQLite local (PENDING_CREATE). Encolado para sincronización.',
+          ),
         ),
       );
     }
-
-    // Try automatic sync trigger
-    _triggerSync();
   }
 
-  /// Trigger sync process
+  /// Trigger manual sync of pending queue
   Future<void> _triggerSync() async {
-    setState(() {
-      _isSyncing = true;
-    });
+    setState(() => _isSyncing = true);
+    final syncService = ref.read(syncServiceProvider);
+    final syncedCount = await syncService.processPendingQueue();
 
-    try {
-      final syncService = ref.read(syncServiceProvider);
-      final syncedCount = await syncService.processPendingQueue();
-      if (mounted && syncedCount > 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Operación(es) sincronizada(s) exitosamente con backend NestJS'),
-            backgroundColor: AppColors.colorSuccess,
+    if (mounted) {
+      setState(() => _isSyncing = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            syncedCount > 0
+                ? 'Sincronización exitosa: $syncedCount intento(s) enviado(s) al backend.'
+                : 'No hay operaciones pendientes o sin conexión al backend.',
           ),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al sincronizar: $e'),
-            backgroundColor: AppColors.colorError,
-          ),
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSyncing = false;
-        });
-      }
+        ),
+      );
     }
   }
 
-  /// Handle Logout
+  /// Perform logout and clear all local storage
   Future<void> _handleLogout() async {
-    await ref.read(authControllerProvider.notifier).logout();
+    final authNotifier = ref.read(authControllerProvider.notifier);
+    await authNotifier.logout();
     if (mounted) {
       context.go('/login');
     }
@@ -202,15 +187,24 @@ class _TrainingPageState extends ConsumerState<TrainingPage> {
                             ),
                             Text(
                               'Rol: ${user?.role ?? 'PARTICIPANT'} | Token guardado en KeyStore cifrado',
-                              style: AppTypography.caption.copyWith(color: AppColors.colorTextSecondary),
+                              style: AppTypography.caption
+                                  .copyWith(color: AppColors.colorTextSecondary),
                             ),
                           ],
                         ),
                       ),
+                      IconButton(
+                        icon: const Icon(Icons.admin_panel_settings,
+                            color: AppColors.colorPrimary),
+                        tooltip: 'Gestión CRUD Evaluaciones',
+                        onPressed: () => context.go('/evaluations'),
+                      ),
                       TextButton.icon(
                         onPressed: _handleLogout,
-                        icon: const Icon(Icons.logout, color: AppColors.colorError),
-                        label: const Text('Logout', style: TextStyle(color: AppColors.colorError)),
+                        icon: const Icon(Icons.logout,
+                            color: AppColors.colorError),
+                        label: const Text('Logout',
+                            style: TextStyle(color: AppColors.colorError)),
                       ),
                     ],
                   ),
@@ -221,7 +215,8 @@ class _TrainingPageState extends ConsumerState<TrainingPage> {
                 SafeAccessSectionCard(
                   title: 'Material de capacitación',
                   leadingIcon: Icons.menu_book_outlined,
-                  subtitle: 'El material se abrirá en una nueva pestaña del navegador.',
+                  subtitle:
+                      'El material se abrirá en una nueva pestaña del navegador.',
                   child: Column(
                     children: [
                       const Icon(
@@ -245,7 +240,8 @@ class _TrainingPageState extends ConsumerState<TrainingPage> {
                 SafeAccessSectionCard(
                   title: 'Persistencia Local y Sincronización (Semana 12)',
                   leadingIcon: Icons.storage_outlined,
-                  subtitle: 'Demostración de lectura local (Drift SQLite), estado de red y cola offline.',
+                  subtitle:
+                      'Demostración de lectura local (Drift SQLite), estado de red y cola offline.',
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -260,8 +256,12 @@ class _TrainingPageState extends ConsumerState<TrainingPage> {
                         child: Row(
                           children: [
                             Icon(
-                              _apiResult?.success == true ? Icons.wifi : Icons.wifi_off,
-                              color: _apiResult?.success == true ? AppColors.colorSuccess : Colors.orange.shade800,
+                              _apiResult?.success == true
+                                  ? Icons.wifi
+                                  : Icons.wifi_off,
+                              color: _apiResult?.success == true
+                                  ? AppColors.colorSuccess
+                                  : Colors.orange.shade800,
                             ),
                             const SizedBox(width: AppSpacing.sm),
                             Expanded(
@@ -271,7 +271,9 @@ class _TrainingPageState extends ConsumerState<TrainingPage> {
                                     : 'Estado: Modo Offline / Local',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: _apiResult?.success == true ? AppColors.colorSuccess : Colors.orange.shade800,
+                                  color: _apiResult?.success == true
+                                      ? AppColors.colorSuccess
+                                      : Colors.orange.shade800,
                                 ),
                               ),
                             ),
@@ -302,7 +304,8 @@ class _TrainingPageState extends ConsumerState<TrainingPage> {
                       ),
                       const SizedBox(height: AppSpacing.lg),
 
-                      const Text('Intentos Registrados en Base SQLite Local:', style: AppTypography.title),
+                      const Text('Intentos Registrados en Base SQLite Local:',
+                          style: AppTypography.title),
                       const SizedBox(height: AppSpacing.xs),
 
                       // List of Local Attempts from Drift
@@ -310,30 +313,36 @@ class _TrainingPageState extends ConsumerState<TrainingPage> {
                         data: (attempts) {
                           if (attempts.isEmpty) {
                             return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: AppSpacing.md),
                               child: Text(
-                                'No hay intentos en la base de datos local. Presiona "Registrar Intento Offline" para crear uno.',
-                                style: TextStyle(color: AppColors.colorTextSecondary),
+                                'No hay intentos en la base de datos local. Presiona "Registrar Intento Offline" o realiza un Quiz para crear uno.',
+                                style: TextStyle(
+                                    color: AppColors.colorTextSecondary),
                               ),
                             );
                           }
 
-                          final lastSyncedAt = attempts.first.serverUpdatedAt ?? attempts.first.createdAtLocal;
+                          final lastSyncedAt = attempts.first.serverUpdatedAt ??
+                              attempts.first.createdAtLocal;
 
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Text(
                                 'Antigüedad de datos: ${_formatAge(lastSyncedAt)}',
-                                style: AppTypography.caption.copyWith(color: AppColors.colorTextSecondary),
+                                style: AppTypography.caption.copyWith(
+                                    color: AppColors.colorTextSecondary),
                               ),
                               const SizedBox(height: AppSpacing.sm),
                               ...attempts.map((attempt) {
                                 final isSynced = attempt.syncStatus == 'SYNCED';
-                                final isPending = attempt.syncStatus == 'PENDING_CREATE';
+                                final isPending =
+                                    attempt.syncStatus == 'PENDING_CREATE';
 
                                 return Card(
-                                  margin: const EdgeInsets.only(bottom: AppSpacing.sm),
+                                  margin: const EdgeInsets.only(
+                                      bottom: AppSpacing.sm),
                                   child: ListTile(
                                     leading: CircleAvatar(
                                       backgroundColor: isSynced
@@ -356,24 +365,30 @@ class _TrainingPageState extends ConsumerState<TrainingPage> {
                                     ),
                                     title: Text(
                                       'Intento #${attempt.localId} (Puntaje: ${attempt.score}%)',
-                                      style: const TextStyle(fontWeight: FontWeight.bold),
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
                                     ),
                                     subtitle: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text('clientId: ${attempt.clientId}'),
                                         if (attempt.serverId != null)
-                                          Text('serverId Backend: ${attempt.serverId}'),
-                                        Text('Creado local: ${_formatAge(attempt.createdAtLocal)}'),
+                                          Text(
+                                              'serverId Backend: ${attempt.serverId}'),
+                                        Text(
+                                            'Creado local: ${_formatAge(attempt.createdAtLocal)}'),
                                       ],
                                     ),
                                     trailing: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
                                         color: isSynced
                                             ? AppColors.colorSuccessContainer
                                             : isPending
-                                                ? AppColors.colorWarningContainer
+                                                ? AppColors
+                                                    .colorWarningContainer
                                                 : AppColors.colorErrorContainer,
                                         borderRadius: BorderRadius.circular(6),
                                         border: Border.all(
@@ -404,14 +419,37 @@ class _TrainingPageState extends ConsumerState<TrainingPage> {
                           );
                         },
                         loading: () => const CircularProgressIndicator(),
-                        error: (err, _) => Text('Error al leer Drift SQLite: $err', style: const TextStyle(color: AppColors.colorError)),
+                        error: (err, _) => Text(
+                            'Error al leer Drift SQLite: $err',
+                            style: const TextStyle(
+                                color: AppColors.colorError)),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: AppSpacing.spacingSection),
 
-                // SECCIÓN 3: Estado del Backend (API Health)
+                // SECCIÓN 3: Gestión Administrativa de Evaluaciones (CRUD)
+                SafeAccessSectionCard(
+                  title: 'Gestión Administrativa de Evaluaciones (CRUD)',
+                  leadingIcon: Icons.admin_panel_settings_outlined,
+                  subtitle:
+                      'Acceso a la interfaz gráfica para crear, listar, editar y desactivar evaluaciones en NestJS.',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SafeAccessButton(
+                        label: 'Administrar Evaluaciones (CRUD API)',
+                        icon: Icons.edit_note,
+                        onPressed: () => context.go('/evaluations'),
+                        variant: SafeAccessButtonVariant.outline,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.spacingSection),
+
+                // SECCIÓN 4: Estado del Backend (API Health)
                 SafeAccessSectionCard(
                   title: 'Estado de Infraestructura Backend (API)',
                   leadingIcon: Icons.api_outlined,
@@ -435,7 +473,8 @@ class _TrainingPageState extends ConsumerState<TrainingPage> {
                             title: _apiResult!.success
                                 ? 'Backend conectado correctamente'
                                 : 'Error de conexión con el backend',
-                            message: '${_apiResult!.message}${_apiResult!.timestamp != null ? '\nTimestamp: ${_apiResult!.timestamp}' : ''}',
+                            message:
+                                '${_apiResult!.message}${_apiResult!.timestamp != null ? '\nTimestamp: ${_apiResult!.timestamp}' : ''}',
                             status: _apiResult!.success
                                 ? SafeAccessStatus.success
                                 : SafeAccessStatus.error,
@@ -447,7 +486,7 @@ class _TrainingPageState extends ConsumerState<TrainingPage> {
                 ),
                 const SizedBox(height: AppSpacing.spacingSection),
 
-                // SECCIÓN 4: Confirmación e Inicio de Evaluación
+                // SECCIÓN 5: Confirmación e Inicio de Evaluación
                 SafeAccessSectionCard(
                   title: 'Confirmación de Lectura',
                   leadingIcon: Icons.assignment_turned_in_outlined,

@@ -1,12 +1,65 @@
+import 'dart:convert';
+import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
+import '../../local/database/app_database.dart';
+import '../../providers/app_providers.dart';
 import '../../shared/app_scaffold.dart';
 import 'quiz_controller.dart';
 import 'quiz_data.dart';
 
 class QuizPage extends ConsumerWidget {
   const QuizPage({super.key});
+
+  /// Create real attempt in local Drift SQLite DB and enqueue in PendingOperations
+  Future<void> _recordQuizAttempt(WidgetRef ref, QuizState quizState) async {
+    final db = ref.read(appDatabaseProvider);
+    final syncService = ref.read(syncServiceProvider);
+    final clientId = const Uuid().v4();
+    final now = DateTime.now();
+    final score = quizState.percentage.round();
+    final status = quizState.percentage >= passingPercentage ? 'APPROVED' : 'FAILED';
+
+    // 1. Insert into local AttemptsTable (Drift)
+    await db.saveAttempt(
+      AttemptsTableCompanion.insert(
+        clientId: clientId,
+        evaluationId: 1,
+        score: drift.Value(score),
+        status: drift.Value(status),
+        startedAt: now.subtract(const Duration(minutes: 5)),
+        finishedAt: drift.Value(now),
+        createdAtLocal: now,
+        updatedAtLocal: now,
+        syncStatus: const drift.Value('PENDING_CREATE'),
+      ),
+    );
+
+    // 2. Enqueue into PendingOperationsTable (Drift)
+    final payloadJson = jsonEncode({
+      'evaluationId': 1,
+      'score': score,
+      'status': status,
+      'startedAt': now.subtract(const Duration(minutes: 5)).toIso8601String(),
+      'finishedAt': now.toIso8601String(),
+    });
+
+    await db.enqueuePendingOperation(
+      PendingOperationsTableCompanion.insert(
+        clientId: clientId,
+        entityType: 'ATTEMPT',
+        operationType: 'CREATE',
+        payload: payloadJson,
+        createdAt: now,
+        status: const drift.Value('PENDING'),
+      ),
+    );
+
+    // 3. Process pending queue in background (if online, syncs with NestJS REST API)
+    syncService.processPendingQueue();
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -100,7 +153,7 @@ class QuizPage extends ConsumerWidget {
                   onPressed: selectedAnswer == null
                       ? null
                       : (isLastQuestion
-                          ? () => _confirmFinish(context, notifier)
+                          ? () => _confirmFinish(context, ref, notifier)
                           : notifier.nextQuestion),
                   child:
                       Text(isLastQuestion ? 'Finalizar prueba' : 'Siguiente'),
@@ -113,7 +166,8 @@ class QuizPage extends ConsumerWidget {
     );
   }
 
-  void _confirmFinish(BuildContext context, QuizNotifier notifier) {
+  void _confirmFinish(
+      BuildContext context, WidgetRef ref, QuizNotifier notifier) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -126,9 +180,11 @@ class QuizPage extends ConsumerWidget {
             child: const Text('Cancelar'),
           ),
           FilledButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(context);
+              final currentQuizState = ref.read(quizProvider);
               notifier.finishQuiz();
+              await _recordQuizAttempt(ref, currentQuizState);
             },
             child: const Text('Confirmar'),
           ),

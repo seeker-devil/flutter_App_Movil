@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../features/auth/login_page.dart';
+import '../features/evaluations/evaluations_page.dart';
 import '../features/training/training_page.dart';
 import '../features/quiz/quiz_page.dart';
 import '../features/certificate/certificate_page.dart';
@@ -79,6 +80,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/certificate',
         builder: (context, state) => const CertificatePage(),
+      ),
+      GoRoute(
+        path: '/evaluations',
+        builder: (context, state) => const EvaluationsPage(),
       ),
     ],
   );

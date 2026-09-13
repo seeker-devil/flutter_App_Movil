@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../local/database/app_database.dart';
 import '../local/sync/sync_service.dart';
 import '../services/auth_service.dart';
+import '../services/evaluations_api_service.dart';
 import '../services/secure_session_storage.dart';
 
 /// AppDatabase singleton provider
@@ -23,6 +24,13 @@ final authServiceProvider = Provider<AuthService>((ref) {
   return AuthService(
     secureStorage: ref.watch(secureStorageProvider),
     db: ref.watch(appDatabaseProvider),
+  );
+});
+
+/// EvaluationsApiService provider
+final evaluationsApiServiceProvider = Provider<EvaluationsApiService>((ref) {
+  return EvaluationsApiService(
+    secureStorage: ref.watch(secureStorageProvider),
   );
 });
 

@@ -11,7 +11,7 @@
 ## 1. Nombre y Propósito del Proyecto
 
 * **Nombre del Proyecto:** SafeAccess 90
-* **Propósito:** Aplicación móvil multiplataforma de inducción, capacitación, evaluación y certificación en Seguridad y Salud Ocupacional. El sistema permite a los trabajadores realizar el módulo de capacitación inductiva, presentar la evaluación de conocimientos (quiz), registrar sus intentos de evaluación de forma offline u online, y obtener un certificado digital de aprobación verificado por código único.
+* **Propósito:** Aplicación móvil multiplataforma de inducción, capacitación, evaluación y certificación en Seguridad y Salud Ocupacional. El sistema permite a los trabajadores realizar el módulo de capacitación inductiva, presentar la evaluación de conocimientos (quiz), registrar sus intentos de evaluación de forma offline u online, administrar cuestionarios mediante un módulo CRUD completo y obtener un certificado digital de aprobación verificado por código único.
 
 ---
 
@@ -20,7 +20,7 @@
 | Rol | Descripción | Permisos Principales |
 | --- | --- | --- |
 | `PARTICIPANT` | Usuario trabajador / participante de la inducción. | Acceso al material de capacitación, realización de evaluaciones (quiz), registro de intentos local/remoto, consulta de evaluaciones y visualización/descarga de certificados de aprobación. |
-| `ADMIN` | Administrador del sistema de seguridad. | Verificación administrativa del sistema (`/api/auth/admin-check`), gestión CRUD completa de evaluaciones (`/api/evaluations`) y supervisión de intentos de evaluación. |
+| `ADMIN` | Administrador del sistema de seguridad. | Verificación administrativa del sistema (`/api/auth/admin-check`), gestión CRUD completa de evaluaciones (`/api/evaluations`) desde la app móvil o API Swagger y supervisión de intentos de evaluación. |
 
 ---
 
@@ -28,8 +28,8 @@
 
 1. **Autenticación y Gestión de Sesión Segura (`auth`)**: Login con JWT, restauración automática de sesión desde almacenamiento cifrado (`flutter_secure_storage`), control de guardias por roles (`RolesGuard`) y cierre de sesión seguro con limpieza total de base de datos.
 2. **Capacitación Inductiva (`training`)**: Presentación del material educativo sobre normas de seguridad ocupacional, módulos temáticos e interfaz interactiva previa a la evaluación.
-3. **Evaluación y Cuestionario (`quiz`)**: Cuestionario interactivo con preguntas de opción múltiple, cálculo de puntaje porcentual y lógica de aprobación ($\ge 70\%$).
-4. **Gestión Administrativa de Evaluaciones (`evaluations`)**: Módulo CRUD administrativo completo para creación, consulta, actualización y baja lógica de evaluaciones de seguridad.
+3. **Evaluación y Cuestionario (`quiz`)**: Cuestionario interactivo con preguntas de opción múltiple, cálculo de puntaje porcentual y conexión directa con la persistencia relacional local `AppDatabase` (Drift SQLite) y cola de sincronización, generando intentos reales con `clientId` UUID v4.
+4. **Gestión Administrativa de Evaluaciones (`evaluations`)**: Módulo CRUD administrativo completo en Flutter (`EvaluationsPage`) y NestJS (`EvaluationsModule`) para creación, consulta, actualización y baja lógica de evaluaciones de seguridad.
 5. **Certificación Digital (`certificate`)**: Emisión y visualización del certificado de aprobación con código alfanumérico único, fecha de emisión y estado de vigencia.
 6. **Persistencia Local y Sincronización Offline (`local`)**: Almacenamiento SQLite mediante Drift ORM, cola de operaciones pendientes, algoritmo de Backoff Exponencial para reintentos de red e idempotencia mediante `clientId` UUID v4.
 
@@ -40,9 +40,10 @@
 | Pantalla | Ruta | Archivo Source | Descripción |
 | --- | --- | --- | --- |
 | `LoginPage` | `/login` | [login_page.dart](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/features/auth/login_page.dart) | Formulario de autenticación con campos de email y password, validación de estado asíncrono y mensajes de error. |
-| `TrainingPage` | `/` | [training_page.dart](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/features/training/training_page.dart) | Pantalla principal de bienvenida y capacitación inductiva. Presenta contenidos de seguridad, estado del participante y acceso al quiz. |
-| `QuizPage` | `/quiz` | [quiz_page.dart](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/features/quiz/quiz_page.dart) | Interfaz de evaluación interactiva con preguntas de opción múltiple, selección de respuestas, temporizador y cálculo de resultado final. |
+| `TrainingPage` | `/` | [training_page.dart](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/features/training/training_page.dart) | Pantalla principal de bienvenida y capacitación inductiva. Presenta contenidos de seguridad, estado del participante, acceso al quiz y botón de administración de evaluaciones. |
+| `QuizPage` | `/quiz` | [quiz_page.dart](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/features/quiz/quiz_page.dart) | Interfaz de evaluación interactiva con preguntas de opción múltiple, temporizador, cálculo de resultado e inserción automática del intento en SQLite local + cola backend. |
 | `CertificatePage` | `/certificate` | [certificate_page.dart](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/features/certificate/certificate_page.dart) | Pantalla de visualización del certificado digital emitido tras aprobar la evaluación, mostrando código único, vigencia y opción de exportación. |
+| `EvaluationsPage` | `/evaluations` | [evaluations_page.dart](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/features/evaluations/evaluations_page.dart) | Pantalla de administración CRUD gráfica de evaluaciones en tiempo real contra la REST API NestJS (Listar, Crear, Editar, Desactivar). |
 
 ---
 
@@ -50,6 +51,7 @@
 
 ### Cliente Móvil Flutter (`lib/services/` & `lib/local/sync/`)
 * [AuthService](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/services/auth_service.dart): Peticiones de login a NestJS REST API, guardado/lectura de JWT y cierre de sesión.
+* [EvaluationsApiService](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/services/evaluations_api_service.dart): Consumo de endpoints REST `/api/evaluations` (GET, POST, PATCH, DELETE por baja lógica `active = false`).
 * [SecureSessionStorage](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/services/secure_session_storage.dart): Wrapper seguro utilizando `flutter_secure_storage` para guardar tokens y credenciales cifradas.
 * [HealthApiService](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/services/health_api_service.dart): Consulta de estado operacional del backend (`/api/health`).
 * [SyncService](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/local/sync/sync_service.dart): Procesamiento de la cola de operaciones SQLite, reintentos con algoritmo de Backoff Exponencial y sincronización de intentos locales.
@@ -68,6 +70,7 @@
 * `appDatabaseProvider`: Singleton de la base local `AppDatabase` (Drift SQLite).
 * `secureStorageProvider`: Proveedor de la capa de almacenamiento seguro `SecureSessionStorage`.
 * `authServiceProvider`: Servicio de autenticación inyectado con dependencias locales.
+* `evaluationsApiServiceProvider`: Servicio HTTP de administración de evaluaciones `EvaluationsApiService`.
 * `syncServiceProvider`: Servicio de sincronización en segundo plano inyectado con `AppDatabase`.
 * `authControllerProvider`: `StateNotifierProvider` manejando `AuthNotifier` con estado reactivo `AsyncValue<AuthUser?>`.
 * `routerNotifierProvider` & `routerProvider`: Gestor de enrutamiento con `GoRouter`, con lógica de redirección basada en autenticación sin parpadeos de carga.
@@ -80,7 +83,7 @@
 ## 7. Componentes Reutilizables (Design System)
 
 Ubicados en `lib/design_system/`:
-* `SafeAccessButton` ([safe_access_button.dart](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/design_system/components/safe_access_button.dart)): Botón estandarizado con variantes `primary` y `secondary`, soporte para estados de carga, deshabilitado e íconos.
+* `SafeAccessButton` ([safe_access_button.dart](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/design_system/components/safe_access_button.dart)): Botón estandarizado con variantes `primary`, `secondary` y `outline`, soporte para estados de carga, deshabilitado e íconos.
 * `SafeAccessStatusCard` ([safe_access_status_card.dart](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/design_system/components/safe_access_status_card.dart)): Tarjeta de retroalimentación con estilos semánticos (`success`, `warning`, `error`, `info`) y acciones secundarias.
 * `SafeAccessAsyncState` ([safe_access_async_state.dart](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/design_system/components/safe_access_async_state.dart)): Contenedor de interfaz para manejar estados `loading`, `error`, `empty` y `data`.
 * `SafeAccessSectionCard` ([safe_access_section_card.dart](file:///C:/Users/alejo/Desktop/work%20sin%20BACKUP/github/sem5/appmov/flutter/training_quiz_app/lib/design_system/components/safe_access_section_card.dart)): Contenedor de sección estructurado con encabezado, subtítulo e ícono.
