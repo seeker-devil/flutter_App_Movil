@@ -3,9 +3,13 @@ import { AppModule } from "./app.module";
 import { ValidationPipe } from "@nestjs/common";
 import { GlobalExceptionFilter } from "./common/filters/global-exception.filter";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import * as express from "express";
+import * as path from "path";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
   app.setGlobalPrefix("api");
   app.enableCors();

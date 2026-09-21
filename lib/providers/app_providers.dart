@@ -5,6 +5,7 @@ import '../local/database/app_database.dart';
 import '../local/sync/sync_service.dart';
 import '../services/auth_service.dart';
 import '../services/evaluations_api_service.dart';
+import '../services/evidence_service.dart';
 import '../services/secure_session_storage.dart';
 
 /// AppDatabase singleton provider
@@ -120,4 +121,14 @@ final connectivityStreamProvider = StreamProvider<List<ConnectivityResult>>((ref
 /// Stream of local attempts from Drift DB
 final attemptsStreamProvider = StreamProvider<List<LocalAttempt>>((ref) {
   return ref.watch(appDatabaseProvider).watchAllAttempts();
+});
+
+/// EvidenceService provider
+final evidenceServiceProvider = Provider<EvidenceService>((ref) {
+  return EvidenceService(db: ref.watch(appDatabaseProvider));
+});
+
+/// Stream of local safety evidences from Drift DB
+final evidencesStreamProvider = StreamProvider<List<LocalEvidence>>((ref) {
+  return ref.watch(appDatabaseProvider).watchAllEvidences();
 });

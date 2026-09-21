@@ -1124,18 +1124,624 @@ class PendingOperationsTableCompanion
   }
 }
 
+class $EvidencesTableTable extends EvidencesTable
+    with TableInfo<$EvidencesTableTable, LocalEvidence> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EvidencesTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _clientIdMeta =
+      const VerificationMeta('clientId');
+  @override
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
+      'client_id', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'));
+  static const VerificationMeta _serverIdMeta =
+      const VerificationMeta('serverId');
+  @override
+  late final GeneratedColumn<int> serverId = GeneratedColumn<int>(
+      'server_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _imagePathMeta =
+      const VerificationMeta('imagePath');
+  @override
+  late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
+      'image_path', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _latitudeMeta =
+      const VerificationMeta('latitude');
+  @override
+  late final GeneratedColumn<double> latitude = GeneratedColumn<double>(
+      'latitude', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _longitudeMeta =
+      const VerificationMeta('longitude');
+  @override
+  late final GeneratedColumn<double> longitude = GeneratedColumn<double>(
+      'longitude', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _capturedAtMeta =
+      const VerificationMeta('capturedAt');
+  @override
+  late final GeneratedColumn<DateTime> capturedAt = GeneratedColumn<DateTime>(
+      'captured_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _syncStatusMeta =
+      const VerificationMeta('syncStatus');
+  @override
+  late final GeneratedColumn<String> syncStatus = GeneratedColumn<String>(
+      'sync_status', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('PENDING'));
+  static const VerificationMeta _createdAtLocalMeta =
+      const VerificationMeta('createdAtLocal');
+  @override
+  late final GeneratedColumn<DateTime> createdAtLocal =
+      GeneratedColumn<DateTime>('created_at_local', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtLocalMeta =
+      const VerificationMeta('updatedAtLocal');
+  @override
+  late final GeneratedColumn<DateTime> updatedAtLocal =
+      GeneratedColumn<DateTime>('updated_at_local', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _lastErrorMeta =
+      const VerificationMeta('lastError');
+  @override
+  late final GeneratedColumn<String> lastError = GeneratedColumn<String>(
+      'last_error', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        clientId,
+        serverId,
+        description,
+        imagePath,
+        latitude,
+        longitude,
+        capturedAt,
+        syncStatus,
+        createdAtLocal,
+        updatedAtLocal,
+        lastError
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'evidences_table';
+  @override
+  VerificationContext validateIntegrity(Insertable<LocalEvidence> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('client_id')) {
+      context.handle(_clientIdMeta,
+          clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta));
+    } else if (isInserting) {
+      context.missing(_clientIdMeta);
+    }
+    if (data.containsKey('server_id')) {
+      context.handle(_serverIdMeta,
+          serverId.isAcceptableOrUnknown(data['server_id']!, _serverIdMeta));
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('image_path')) {
+      context.handle(_imagePathMeta,
+          imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta));
+    }
+    if (data.containsKey('latitude')) {
+      context.handle(_latitudeMeta,
+          latitude.isAcceptableOrUnknown(data['latitude']!, _latitudeMeta));
+    }
+    if (data.containsKey('longitude')) {
+      context.handle(_longitudeMeta,
+          longitude.isAcceptableOrUnknown(data['longitude']!, _longitudeMeta));
+    }
+    if (data.containsKey('captured_at')) {
+      context.handle(
+          _capturedAtMeta,
+          capturedAt.isAcceptableOrUnknown(
+              data['captured_at']!, _capturedAtMeta));
+    } else if (isInserting) {
+      context.missing(_capturedAtMeta);
+    }
+    if (data.containsKey('sync_status')) {
+      context.handle(
+          _syncStatusMeta,
+          syncStatus.isAcceptableOrUnknown(
+              data['sync_status']!, _syncStatusMeta));
+    }
+    if (data.containsKey('created_at_local')) {
+      context.handle(
+          _createdAtLocalMeta,
+          createdAtLocal.isAcceptableOrUnknown(
+              data['created_at_local']!, _createdAtLocalMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtLocalMeta);
+    }
+    if (data.containsKey('updated_at_local')) {
+      context.handle(
+          _updatedAtLocalMeta,
+          updatedAtLocal.isAcceptableOrUnknown(
+              data['updated_at_local']!, _updatedAtLocalMeta));
+    } else if (isInserting) {
+      context.missing(_updatedAtLocalMeta);
+    }
+    if (data.containsKey('last_error')) {
+      context.handle(_lastErrorMeta,
+          lastError.isAcceptableOrUnknown(data['last_error']!, _lastErrorMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalEvidence map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalEvidence(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      clientId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}client_id'])!,
+      serverId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}server_id']),
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      imagePath: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_path']),
+      latitude: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}latitude']),
+      longitude: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}longitude']),
+      capturedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}captured_at'])!,
+      syncStatus: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}sync_status'])!,
+      createdAtLocal: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}created_at_local'])!,
+      updatedAtLocal: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}updated_at_local'])!,
+      lastError: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}last_error']),
+    );
+  }
+
+  @override
+  $EvidencesTableTable createAlias(String alias) {
+    return $EvidencesTableTable(attachedDatabase, alias);
+  }
+}
+
+class LocalEvidence extends DataClass implements Insertable<LocalEvidence> {
+  final int id;
+  final String clientId;
+  final int? serverId;
+  final String description;
+  final String? imagePath;
+  final double? latitude;
+  final double? longitude;
+  final DateTime capturedAt;
+  final String syncStatus;
+  final DateTime createdAtLocal;
+  final DateTime updatedAtLocal;
+  final String? lastError;
+  const LocalEvidence(
+      {required this.id,
+      required this.clientId,
+      this.serverId,
+      required this.description,
+      this.imagePath,
+      this.latitude,
+      this.longitude,
+      required this.capturedAt,
+      required this.syncStatus,
+      required this.createdAtLocal,
+      required this.updatedAtLocal,
+      this.lastError});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['client_id'] = Variable<String>(clientId);
+    if (!nullToAbsent || serverId != null) {
+      map['server_id'] = Variable<int>(serverId);
+    }
+    map['description'] = Variable<String>(description);
+    if (!nullToAbsent || imagePath != null) {
+      map['image_path'] = Variable<String>(imagePath);
+    }
+    if (!nullToAbsent || latitude != null) {
+      map['latitude'] = Variable<double>(latitude);
+    }
+    if (!nullToAbsent || longitude != null) {
+      map['longitude'] = Variable<double>(longitude);
+    }
+    map['captured_at'] = Variable<DateTime>(capturedAt);
+    map['sync_status'] = Variable<String>(syncStatus);
+    map['created_at_local'] = Variable<DateTime>(createdAtLocal);
+    map['updated_at_local'] = Variable<DateTime>(updatedAtLocal);
+    if (!nullToAbsent || lastError != null) {
+      map['last_error'] = Variable<String>(lastError);
+    }
+    return map;
+  }
+
+  EvidencesTableCompanion toCompanion(bool nullToAbsent) {
+    return EvidencesTableCompanion(
+      id: Value(id),
+      clientId: Value(clientId),
+      serverId: serverId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverId),
+      description: Value(description),
+      imagePath: imagePath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imagePath),
+      latitude: latitude == null && nullToAbsent
+          ? const Value.absent()
+          : Value(latitude),
+      longitude: longitude == null && nullToAbsent
+          ? const Value.absent()
+          : Value(longitude),
+      capturedAt: Value(capturedAt),
+      syncStatus: Value(syncStatus),
+      createdAtLocal: Value(createdAtLocal),
+      updatedAtLocal: Value(updatedAtLocal),
+      lastError: lastError == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastError),
+    );
+  }
+
+  factory LocalEvidence.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalEvidence(
+      id: serializer.fromJson<int>(json['id']),
+      clientId: serializer.fromJson<String>(json['clientId']),
+      serverId: serializer.fromJson<int?>(json['serverId']),
+      description: serializer.fromJson<String>(json['description']),
+      imagePath: serializer.fromJson<String?>(json['imagePath']),
+      latitude: serializer.fromJson<double?>(json['latitude']),
+      longitude: serializer.fromJson<double?>(json['longitude']),
+      capturedAt: serializer.fromJson<DateTime>(json['capturedAt']),
+      syncStatus: serializer.fromJson<String>(json['syncStatus']),
+      createdAtLocal: serializer.fromJson<DateTime>(json['createdAtLocal']),
+      updatedAtLocal: serializer.fromJson<DateTime>(json['updatedAtLocal']),
+      lastError: serializer.fromJson<String?>(json['lastError']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'clientId': serializer.toJson<String>(clientId),
+      'serverId': serializer.toJson<int?>(serverId),
+      'description': serializer.toJson<String>(description),
+      'imagePath': serializer.toJson<String?>(imagePath),
+      'latitude': serializer.toJson<double?>(latitude),
+      'longitude': serializer.toJson<double?>(longitude),
+      'capturedAt': serializer.toJson<DateTime>(capturedAt),
+      'syncStatus': serializer.toJson<String>(syncStatus),
+      'createdAtLocal': serializer.toJson<DateTime>(createdAtLocal),
+      'updatedAtLocal': serializer.toJson<DateTime>(updatedAtLocal),
+      'lastError': serializer.toJson<String?>(lastError),
+    };
+  }
+
+  LocalEvidence copyWith(
+          {int? id,
+          String? clientId,
+          Value<int?> serverId = const Value.absent(),
+          String? description,
+          Value<String?> imagePath = const Value.absent(),
+          Value<double?> latitude = const Value.absent(),
+          Value<double?> longitude = const Value.absent(),
+          DateTime? capturedAt,
+          String? syncStatus,
+          DateTime? createdAtLocal,
+          DateTime? updatedAtLocal,
+          Value<String?> lastError = const Value.absent()}) =>
+      LocalEvidence(
+        id: id ?? this.id,
+        clientId: clientId ?? this.clientId,
+        serverId: serverId.present ? serverId.value : this.serverId,
+        description: description ?? this.description,
+        imagePath: imagePath.present ? imagePath.value : this.imagePath,
+        latitude: latitude.present ? latitude.value : this.latitude,
+        longitude: longitude.present ? longitude.value : this.longitude,
+        capturedAt: capturedAt ?? this.capturedAt,
+        syncStatus: syncStatus ?? this.syncStatus,
+        createdAtLocal: createdAtLocal ?? this.createdAtLocal,
+        updatedAtLocal: updatedAtLocal ?? this.updatedAtLocal,
+        lastError: lastError.present ? lastError.value : this.lastError,
+      );
+  LocalEvidence copyWithCompanion(EvidencesTableCompanion data) {
+    return LocalEvidence(
+      id: data.id.present ? data.id.value : this.id,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      serverId: data.serverId.present ? data.serverId.value : this.serverId,
+      description:
+          data.description.present ? data.description.value : this.description,
+      imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
+      latitude: data.latitude.present ? data.latitude.value : this.latitude,
+      longitude: data.longitude.present ? data.longitude.value : this.longitude,
+      capturedAt:
+          data.capturedAt.present ? data.capturedAt.value : this.capturedAt,
+      syncStatus:
+          data.syncStatus.present ? data.syncStatus.value : this.syncStatus,
+      createdAtLocal: data.createdAtLocal.present
+          ? data.createdAtLocal.value
+          : this.createdAtLocal,
+      updatedAtLocal: data.updatedAtLocal.present
+          ? data.updatedAtLocal.value
+          : this.updatedAtLocal,
+      lastError: data.lastError.present ? data.lastError.value : this.lastError,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalEvidence(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('serverId: $serverId, ')
+          ..write('description: $description, ')
+          ..write('imagePath: $imagePath, ')
+          ..write('latitude: $latitude, ')
+          ..write('longitude: $longitude, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('createdAtLocal: $createdAtLocal, ')
+          ..write('updatedAtLocal: $updatedAtLocal, ')
+          ..write('lastError: $lastError')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      clientId,
+      serverId,
+      description,
+      imagePath,
+      latitude,
+      longitude,
+      capturedAt,
+      syncStatus,
+      createdAtLocal,
+      updatedAtLocal,
+      lastError);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalEvidence &&
+          other.id == this.id &&
+          other.clientId == this.clientId &&
+          other.serverId == this.serverId &&
+          other.description == this.description &&
+          other.imagePath == this.imagePath &&
+          other.latitude == this.latitude &&
+          other.longitude == this.longitude &&
+          other.capturedAt == this.capturedAt &&
+          other.syncStatus == this.syncStatus &&
+          other.createdAtLocal == this.createdAtLocal &&
+          other.updatedAtLocal == this.updatedAtLocal &&
+          other.lastError == this.lastError);
+}
+
+class EvidencesTableCompanion extends UpdateCompanion<LocalEvidence> {
+  final Value<int> id;
+  final Value<String> clientId;
+  final Value<int?> serverId;
+  final Value<String> description;
+  final Value<String?> imagePath;
+  final Value<double?> latitude;
+  final Value<double?> longitude;
+  final Value<DateTime> capturedAt;
+  final Value<String> syncStatus;
+  final Value<DateTime> createdAtLocal;
+  final Value<DateTime> updatedAtLocal;
+  final Value<String?> lastError;
+  const EvidencesTableCompanion({
+    this.id = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.serverId = const Value.absent(),
+    this.description = const Value.absent(),
+    this.imagePath = const Value.absent(),
+    this.latitude = const Value.absent(),
+    this.longitude = const Value.absent(),
+    this.capturedAt = const Value.absent(),
+    this.syncStatus = const Value.absent(),
+    this.createdAtLocal = const Value.absent(),
+    this.updatedAtLocal = const Value.absent(),
+    this.lastError = const Value.absent(),
+  });
+  EvidencesTableCompanion.insert({
+    this.id = const Value.absent(),
+    required String clientId,
+    this.serverId = const Value.absent(),
+    required String description,
+    this.imagePath = const Value.absent(),
+    this.latitude = const Value.absent(),
+    this.longitude = const Value.absent(),
+    required DateTime capturedAt,
+    this.syncStatus = const Value.absent(),
+    required DateTime createdAtLocal,
+    required DateTime updatedAtLocal,
+    this.lastError = const Value.absent(),
+  })  : clientId = Value(clientId),
+        description = Value(description),
+        capturedAt = Value(capturedAt),
+        createdAtLocal = Value(createdAtLocal),
+        updatedAtLocal = Value(updatedAtLocal);
+  static Insertable<LocalEvidence> custom({
+    Expression<int>? id,
+    Expression<String>? clientId,
+    Expression<int>? serverId,
+    Expression<String>? description,
+    Expression<String>? imagePath,
+    Expression<double>? latitude,
+    Expression<double>? longitude,
+    Expression<DateTime>? capturedAt,
+    Expression<String>? syncStatus,
+    Expression<DateTime>? createdAtLocal,
+    Expression<DateTime>? updatedAtLocal,
+    Expression<String>? lastError,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (clientId != null) 'client_id': clientId,
+      if (serverId != null) 'server_id': serverId,
+      if (description != null) 'description': description,
+      if (imagePath != null) 'image_path': imagePath,
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
+      if (capturedAt != null) 'captured_at': capturedAt,
+      if (syncStatus != null) 'sync_status': syncStatus,
+      if (createdAtLocal != null) 'created_at_local': createdAtLocal,
+      if (updatedAtLocal != null) 'updated_at_local': updatedAtLocal,
+      if (lastError != null) 'last_error': lastError,
+    });
+  }
+
+  EvidencesTableCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? clientId,
+      Value<int?>? serverId,
+      Value<String>? description,
+      Value<String?>? imagePath,
+      Value<double?>? latitude,
+      Value<double?>? longitude,
+      Value<DateTime>? capturedAt,
+      Value<String>? syncStatus,
+      Value<DateTime>? createdAtLocal,
+      Value<DateTime>? updatedAtLocal,
+      Value<String?>? lastError}) {
+    return EvidencesTableCompanion(
+      id: id ?? this.id,
+      clientId: clientId ?? this.clientId,
+      serverId: serverId ?? this.serverId,
+      description: description ?? this.description,
+      imagePath: imagePath ?? this.imagePath,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      capturedAt: capturedAt ?? this.capturedAt,
+      syncStatus: syncStatus ?? this.syncStatus,
+      createdAtLocal: createdAtLocal ?? this.createdAtLocal,
+      updatedAtLocal: updatedAtLocal ?? this.updatedAtLocal,
+      lastError: lastError ?? this.lastError,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
+    }
+    if (serverId.present) {
+      map['server_id'] = Variable<int>(serverId.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (imagePath.present) {
+      map['image_path'] = Variable<String>(imagePath.value);
+    }
+    if (latitude.present) {
+      map['latitude'] = Variable<double>(latitude.value);
+    }
+    if (longitude.present) {
+      map['longitude'] = Variable<double>(longitude.value);
+    }
+    if (capturedAt.present) {
+      map['captured_at'] = Variable<DateTime>(capturedAt.value);
+    }
+    if (syncStatus.present) {
+      map['sync_status'] = Variable<String>(syncStatus.value);
+    }
+    if (createdAtLocal.present) {
+      map['created_at_local'] = Variable<DateTime>(createdAtLocal.value);
+    }
+    if (updatedAtLocal.present) {
+      map['updated_at_local'] = Variable<DateTime>(updatedAtLocal.value);
+    }
+    if (lastError.present) {
+      map['last_error'] = Variable<String>(lastError.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EvidencesTableCompanion(')
+          ..write('id: $id, ')
+          ..write('clientId: $clientId, ')
+          ..write('serverId: $serverId, ')
+          ..write('description: $description, ')
+          ..write('imagePath: $imagePath, ')
+          ..write('latitude: $latitude, ')
+          ..write('longitude: $longitude, ')
+          ..write('capturedAt: $capturedAt, ')
+          ..write('syncStatus: $syncStatus, ')
+          ..write('createdAtLocal: $createdAtLocal, ')
+          ..write('updatedAtLocal: $updatedAtLocal, ')
+          ..write('lastError: $lastError')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $AttemptsTableTable attemptsTable = $AttemptsTableTable(this);
   late final $PendingOperationsTableTable pendingOperationsTable =
       $PendingOperationsTableTable(this);
+  late final $EvidencesTableTable evidencesTable = $EvidencesTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [attemptsTable, pendingOperationsTable];
+      [attemptsTable, pendingOperationsTable, evidencesTable];
 }
 
 typedef $$AttemptsTableTableCreateCompanionBuilder = AttemptsTableCompanion
@@ -1667,6 +2273,283 @@ typedef $$PendingOperationsTableTableProcessedTableManager
         ),
         LocalPendingOperation,
         PrefetchHooks Function()>;
+typedef $$EvidencesTableTableCreateCompanionBuilder = EvidencesTableCompanion
+    Function({
+  Value<int> id,
+  required String clientId,
+  Value<int?> serverId,
+  required String description,
+  Value<String?> imagePath,
+  Value<double?> latitude,
+  Value<double?> longitude,
+  required DateTime capturedAt,
+  Value<String> syncStatus,
+  required DateTime createdAtLocal,
+  required DateTime updatedAtLocal,
+  Value<String?> lastError,
+});
+typedef $$EvidencesTableTableUpdateCompanionBuilder = EvidencesTableCompanion
+    Function({
+  Value<int> id,
+  Value<String> clientId,
+  Value<int?> serverId,
+  Value<String> description,
+  Value<String?> imagePath,
+  Value<double?> latitude,
+  Value<double?> longitude,
+  Value<DateTime> capturedAt,
+  Value<String> syncStatus,
+  Value<DateTime> createdAtLocal,
+  Value<DateTime> updatedAtLocal,
+  Value<String?> lastError,
+});
+
+class $$EvidencesTableTableFilterComposer
+    extends Composer<_$AppDatabase, $EvidencesTableTable> {
+  $$EvidencesTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get clientId => $composableBuilder(
+      column: $table.clientId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get serverId => $composableBuilder(
+      column: $table.serverId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get imagePath => $composableBuilder(
+      column: $table.imagePath, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get latitude => $composableBuilder(
+      column: $table.latitude, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get longitude => $composableBuilder(
+      column: $table.longitude, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get capturedAt => $composableBuilder(
+      column: $table.capturedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get syncStatus => $composableBuilder(
+      column: $table.syncStatus, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAtLocal => $composableBuilder(
+      column: $table.createdAtLocal,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAtLocal => $composableBuilder(
+      column: $table.updatedAtLocal,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lastError => $composableBuilder(
+      column: $table.lastError, builder: (column) => ColumnFilters(column));
+}
+
+class $$EvidencesTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $EvidencesTableTable> {
+  $$EvidencesTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get clientId => $composableBuilder(
+      column: $table.clientId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get serverId => $composableBuilder(
+      column: $table.serverId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get imagePath => $composableBuilder(
+      column: $table.imagePath, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get latitude => $composableBuilder(
+      column: $table.latitude, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get longitude => $composableBuilder(
+      column: $table.longitude, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get capturedAt => $composableBuilder(
+      column: $table.capturedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get syncStatus => $composableBuilder(
+      column: $table.syncStatus, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAtLocal => $composableBuilder(
+      column: $table.createdAtLocal,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAtLocal => $composableBuilder(
+      column: $table.updatedAtLocal,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lastError => $composableBuilder(
+      column: $table.lastError, builder: (column) => ColumnOrderings(column));
+}
+
+class $$EvidencesTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $EvidencesTableTable> {
+  $$EvidencesTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
+
+  GeneratedColumn<int> get serverId =>
+      $composableBuilder(column: $table.serverId, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<String> get imagePath =>
+      $composableBuilder(column: $table.imagePath, builder: (column) => column);
+
+  GeneratedColumn<double> get latitude =>
+      $composableBuilder(column: $table.latitude, builder: (column) => column);
+
+  GeneratedColumn<double> get longitude =>
+      $composableBuilder(column: $table.longitude, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get capturedAt => $composableBuilder(
+      column: $table.capturedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get syncStatus => $composableBuilder(
+      column: $table.syncStatus, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAtLocal => $composableBuilder(
+      column: $table.createdAtLocal, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAtLocal => $composableBuilder(
+      column: $table.updatedAtLocal, builder: (column) => column);
+
+  GeneratedColumn<String> get lastError =>
+      $composableBuilder(column: $table.lastError, builder: (column) => column);
+}
+
+class $$EvidencesTableTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $EvidencesTableTable,
+    LocalEvidence,
+    $$EvidencesTableTableFilterComposer,
+    $$EvidencesTableTableOrderingComposer,
+    $$EvidencesTableTableAnnotationComposer,
+    $$EvidencesTableTableCreateCompanionBuilder,
+    $$EvidencesTableTableUpdateCompanionBuilder,
+    (
+      LocalEvidence,
+      BaseReferences<_$AppDatabase, $EvidencesTableTable, LocalEvidence>
+    ),
+    LocalEvidence,
+    PrefetchHooks Function()> {
+  $$EvidencesTableTableTableManager(
+      _$AppDatabase db, $EvidencesTableTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$EvidencesTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$EvidencesTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$EvidencesTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> clientId = const Value.absent(),
+            Value<int?> serverId = const Value.absent(),
+            Value<String> description = const Value.absent(),
+            Value<String?> imagePath = const Value.absent(),
+            Value<double?> latitude = const Value.absent(),
+            Value<double?> longitude = const Value.absent(),
+            Value<DateTime> capturedAt = const Value.absent(),
+            Value<String> syncStatus = const Value.absent(),
+            Value<DateTime> createdAtLocal = const Value.absent(),
+            Value<DateTime> updatedAtLocal = const Value.absent(),
+            Value<String?> lastError = const Value.absent(),
+          }) =>
+              EvidencesTableCompanion(
+            id: id,
+            clientId: clientId,
+            serverId: serverId,
+            description: description,
+            imagePath: imagePath,
+            latitude: latitude,
+            longitude: longitude,
+            capturedAt: capturedAt,
+            syncStatus: syncStatus,
+            createdAtLocal: createdAtLocal,
+            updatedAtLocal: updatedAtLocal,
+            lastError: lastError,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String clientId,
+            Value<int?> serverId = const Value.absent(),
+            required String description,
+            Value<String?> imagePath = const Value.absent(),
+            Value<double?> latitude = const Value.absent(),
+            Value<double?> longitude = const Value.absent(),
+            required DateTime capturedAt,
+            Value<String> syncStatus = const Value.absent(),
+            required DateTime createdAtLocal,
+            required DateTime updatedAtLocal,
+            Value<String?> lastError = const Value.absent(),
+          }) =>
+              EvidencesTableCompanion.insert(
+            id: id,
+            clientId: clientId,
+            serverId: serverId,
+            description: description,
+            imagePath: imagePath,
+            latitude: latitude,
+            longitude: longitude,
+            capturedAt: capturedAt,
+            syncStatus: syncStatus,
+            createdAtLocal: createdAtLocal,
+            updatedAtLocal: updatedAtLocal,
+            lastError: lastError,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$EvidencesTableTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $EvidencesTableTable,
+    LocalEvidence,
+    $$EvidencesTableTableFilterComposer,
+    $$EvidencesTableTableOrderingComposer,
+    $$EvidencesTableTableAnnotationComposer,
+    $$EvidencesTableTableCreateCompanionBuilder,
+    $$EvidencesTableTableUpdateCompanionBuilder,
+    (
+      LocalEvidence,
+      BaseReferences<_$AppDatabase, $EvidencesTableTable, LocalEvidence>
+    ),
+    LocalEvidence,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -1676,4 +2559,6 @@ class $AppDatabaseManager {
   $$PendingOperationsTableTableTableManager get pendingOperationsTable =>
       $$PendingOperationsTableTableTableManager(
           _db, _db.pendingOperationsTable);
+  $$EvidencesTableTableTableManager get evidencesTable =>
+      $$EvidencesTableTableTableManager(_db, _db.evidencesTable);
 }

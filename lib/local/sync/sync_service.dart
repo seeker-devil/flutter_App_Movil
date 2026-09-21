@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:http/http.dart' as http;
@@ -56,9 +57,10 @@ class SyncService {
     const maxRetries = 4;
 
     try {
+      // 1. Sincronizar Intentos de Evaluación (ATTEMPT)
       if (op.entityType == 'ATTEMPT' && op.operationType == 'CREATE') {
         final payloadJson = jsonDecode(op.payload) as Map<String, dynamic>;
-        
+
         final response = await httpClient.post(
           Uri.parse('${ApiConfig.baseUrl}/attempts'),
           headers: {
@@ -100,6 +102,65 @@ class SyncService {
           return false;
         }
       }
+
+      // 2. Sincronizar Evidencias de Seguridad (EVIDENCE) con soporte Multipart para fotografías
+      if (op.entityType == 'EVIDENCE' && op.operationType == 'CREATE') {
+        final localEvidence = await db.getEvidenceByClientId(op.clientId);
+        if (localEvidence == null) {
+          await db.deletePendingOperation(op.clientId);
+          return true;
+        }
+
+        final uri = Uri.parse('${ApiConfig.baseUrl}/evidences');
+        final request = http.MultipartRequest('POST', uri);
+        request.headers['Authorization'] = 'Bearer $token';
+
+        request.fields['clientId'] = localEvidence.clientId;
+        request.fields['description'] = localEvidence.description;
+        if (localEvidence.latitude != null) {
+          request.fields['latitude'] = localEvidence.latitude.toString();
+        }
+        if (localEvidence.longitude != null) {
+          request.fields['longitude'] = localEvidence.longitude.toString();
+        }
+        request.fields['capturedAt'] = localEvidence.capturedAt.toIso8601String();
+
+        // Transferencia real del archivo local si existe
+        if (localEvidence.imagePath != null && localEvidence.imagePath!.isNotEmpty) {
+          final imageFile = File(localEvidence.imagePath!);
+          if (await imageFile.exists()) {
+            final multipartFile = await http.MultipartFile.fromPath(
+              'file',
+              imageFile.path,
+            );
+            request.files.add(multipartFile);
+          }
+        }
+
+        final streamedResponse = await request.send();
+        final response = await http.Response.fromStream(streamedResponse);
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          final resData = jsonDecode(response.body);
+          final data = resData['data'];
+          final serverId = data['id'] as int;
+
+          // Actualizar estado local a SYNCED
+          await db.updateEvidenceSynced(
+            clientId: op.clientId,
+            serverId: serverId,
+          );
+
+          // Eliminar de cola de pendientes
+          await db.deletePendingOperation(op.clientId);
+          return true;
+        } else {
+          final errorMsg = 'HTTP ${response.statusCode}: ${response.body}';
+          await _handleRetry(op, newRetryCount, maxRetries, errorMsg);
+          return false;
+        }
+      }
+
       return false;
     } catch (e) {
       await _handleRetry(op, newRetryCount, maxRetries, e.toString());

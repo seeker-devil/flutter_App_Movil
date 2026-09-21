@@ -5,6 +5,7 @@ import { AuthModule } from "./auth/auth.module";
 import { RedisModule } from "./redis/redis.module";
 import { AttemptsModule } from "./attempts/attempts.module";
 import { EvaluationsModule } from "./evaluations/evaluations.module";
+import { EvidencesModule } from "./evidences/evidences.module";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { EvaluationsModule } from "./evaluations/evaluations.module";
     RedisModule,
     AttemptsModule,
     EvaluationsModule,
+    EvidencesModule,
   ],
   controllers: [],
   providers: [],

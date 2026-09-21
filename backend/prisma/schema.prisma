@@ -33,6 +33,7 @@ model User {
   createdAt    DateTime  @default(now())
 
   attempts     Attempt[]
+  evidences    SafetyEvidence[]
 }
 
 model Evaluation {
@@ -93,4 +94,19 @@ model Certificate {
   status     CertificateStatus @default(ACTIVE)
 
   attempt    Attempt           @relation(fields: [attemptId], references: [id])
+}
+
+model SafetyEvidence {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  clientId    String   @unique
+  description String
+  imageUrl    String?
+  latitude    Float?
+  longitude   Float?
+  capturedAt  DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id])
 }

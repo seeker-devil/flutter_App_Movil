@@ -1,11 +1,13 @@
+import 'dart:io';
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 import 'tables/attempts_table.dart';
 import 'tables/pending_operations_table.dart';
+import 'tables/evidences_table.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [AttemptsTable, PendingOperationsTable])
+@DriftDatabase(tables: [AttemptsTable, PendingOperationsTable, EvidencesTable])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e])
       : super(
@@ -20,7 +22,7 @@ class AppDatabase extends _$AppDatabase {
         );
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -28,7 +30,9 @@ class AppDatabase extends _$AppDatabase {
           await m.createAll();
         },
         onUpgrade: (Migrator m, int from, int to) async {
-          // Future migrations strategy
+          if (from < 2) {
+            await m.createTable(evidencesTable);
+          }
         },
       );
 
@@ -79,6 +83,51 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  // --- Evidences DAOs / Queries ---
+
+  /// Stream of local safety evidences ordered by createdAtLocal descending
+  Stream<List<LocalEvidence>> watchAllEvidences() {
+    return (select(evidencesTable)
+          ..orderBy([
+            (t) => OrderingTerm(expression: t.createdAtLocal, mode: OrderingMode.desc)
+          ]))
+        .watch();
+  }
+
+  /// Get all local evidences
+  Future<List<LocalEvidence>> getAllEvidences() async {
+    return (select(evidencesTable)
+          ..orderBy([
+            (t) => OrderingTerm(expression: t.createdAtLocal, mode: OrderingMode.desc)
+          ]))
+        .get();
+  }
+
+  /// Insert or update local evidence
+  Future<int> saveEvidence(EvidencesTableCompanion evidence) async {
+    return into(evidencesTable).insertOnConflictUpdate(evidence);
+  }
+
+  /// Get single evidence by clientId
+  Future<LocalEvidence?> getEvidenceByClientId(String clientId) async {
+    return (select(evidencesTable)..where((t) => t.clientId.equals(clientId)))
+        .getSingleOrNull();
+  }
+
+  /// Update evidence sync status and server ID
+  Future<void> updateEvidenceSynced({
+    required String clientId,
+    required int serverId,
+  }) async {
+    await (update(evidencesTable)..where((t) => t.clientId.equals(clientId))).write(
+      EvidencesTableCompanion(
+        serverId: Value(serverId),
+        syncStatus: const Value('SYNCED'),
+        updatedAtLocal: Value(DateTime.now()),
+      ),
+    );
+  }
+
   // --- Pending Operations Queue DAOs / Queries ---
 
   /// Get all active pending operations ordered by id
@@ -120,10 +169,27 @@ class AppDatabase extends _$AppDatabase {
 
   // --- Full Cleanup on Logout ---
 
-  /// Delete all rows from all tables on logout
+  /// Delete all rows from all tables and delete local persistent evidence image files on logout
   Future<void> clearAllTablesOnLogout() async {
+    // 1. Delete local evidence files from disk before clearing DB table
+    try {
+      final evidences = await getAllEvidences();
+      for (final ev in evidences) {
+        if (ev.imagePath != null && ev.imagePath!.isNotEmpty) {
+          final file = File(ev.imagePath!);
+          if (await file.exists()) {
+            await file.delete();
+          }
+        }
+      }
+    } catch (_) {
+      // Ignorar errores de borrado de archivo si no existe
+    }
+
+    // 2. Clear DB tables in transaction
     await transaction(() async {
       await delete(attemptsTable).go();
+      await delete(evidencesTable).go();
       await delete(pendingOperationsTable).go();
     });
   }

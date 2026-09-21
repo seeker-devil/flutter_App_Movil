@@ -6,6 +6,7 @@ import '../features/evaluations/evaluations_page.dart';
 import '../features/training/training_page.dart';
 import '../features/quiz/quiz_page.dart';
 import '../features/certificate/certificate_page.dart';
+import '../features/evidence/evidence_page.dart';
 import '../providers/app_providers.dart';
 import '../services/auth_service.dart';
 
@@ -84,6 +85,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/evaluations',
         builder: (context, state) => const EvaluationsPage(),
+      ),
+      GoRoute(
+        path: '/evidence',
+        builder: (context, state) => const EvidencePage(),
       ),
     ],
   );

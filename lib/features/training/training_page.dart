@@ -429,6 +429,26 @@ class _TrainingPageState extends ConsumerState<TrainingPage> {
                 ),
                 const SizedBox(height: AppSpacing.spacingSection),
 
+                // SECCIÓN NUEVA: Semana 14 — Funcionalidades Nativas (Evidencia de Seguridad)
+                SafeAccessSectionCard(
+                  title: 'Evidencia de Seguridad (Semana 14: Cámara & Ubicación)',
+                  leadingIcon: Icons.camera_alt_outlined,
+                  subtitle:
+                      'Capacidades nativas opcionales de cámara y ubicación bajo demanda, con persistencia local Drift y sincronización al backend NestJS.',
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SafeAccessButton(
+                        label: 'Registrar Evidencia de Seguridad',
+                        icon: Icons.add_a_photo_outlined,
+                        onPressed: () => context.go('/evidence'),
+                        variant: SafeAccessButtonVariant.primary,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.spacingSection),
+
                 // SECCIÓN 3: Gestión Administrativa de Evaluaciones (CRUD)
                 SafeAccessSectionCard(
                   title: 'Gestión Administrativa de Evaluaciones (CRUD)',
